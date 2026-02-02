@@ -89,7 +89,3 @@ uvicorn main:app --reload
 * **Validation**: The system uses a **Lazy Client** pattern, ensuring the Gemini client only initializes after environment variables are confirmed.
 
 ---
-
-
-[How To Use GitHub Action Secrets In Your Python Script](https://www.youtube.com/watch?v=H--8n9ZxxCI)
-This video is relevant because it shows the exact process of taking a local Python script using `os.getenv` and connecting it to the secrets you've stored in your GitHub repository.
