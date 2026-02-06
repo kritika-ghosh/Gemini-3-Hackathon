@@ -3,7 +3,8 @@
 
 # 🚀 The Learning Engine
 
-**The Learning Engine** is an AI-powered educational orchestrator that transforms abstract learning goals into structured, multimodal curricula. Powered by **Gemini 3 Flash**, it leverages a multi-agent system to design custom learning routes, validate resources, and extract surgical "learning moments" from video content.
+The Learning Engine is an AI-powered educational orchestrator that transforms abstract learning goals into structured, multimodal curricula. Powered by Gemini 3 Flash, it leverages a multi-agent system to design custom learning routes, validate resources, and extract surgical "learning moments" from video content.
+
 ---
 # AI Learning Assistant APIs
 
