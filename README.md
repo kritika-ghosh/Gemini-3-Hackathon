@@ -4,88 +4,31 @@
 # 🚀 The Learning Engine
 
 **The Learning Engine** is an AI-powered educational orchestrator that transforms abstract learning goals into structured, multimodal curricula. Powered by **Gemini 3 Flash**, it leverages a multi-agent system to design custom learning routes, validate resources, and extract surgical "learning moments" from video content.
-
 ---
+# AI Learning Assistant APIs
 
-## 🌟 Key Features
+This repository contains the backend logic for an AI-powered learning platform. It consists of two distinct FastAPI services powered by Google's Gemini 1.5 Flash.
 
-* **Architect Agent**: Uses "Thinking" capabilities to deconstruct high-level goals into logical, sequential modules.
-* **Librarian Agent**: Automatically performs sanity checks (HTTP 200) on all external links before they reach the user.
-* **Multimodal Specialist**: Analyzes educational videos to provide direct navigation to key timestamps.
-* **Adaptive Feedback**: Recalibrates individual learning tasks in real-time based on student progress and difficulty ratings.
+## 1. YouTube Scraper & Validator API
+**Purpose:** Finds, verifies, and curates the best video tutorials for a specific learning goal.
 
----
+* **Endpoint:** `POST /recommend`
+* **What it does:**
+    1.  Searches YouTube via the official Data API for videos matching a specific **Topic** (e.g., "Variables"), **Context** (e.g., "Python"), and **Difficulty** (e.g., "Beginner").
+    2.  Retrieves a list of relevant candidates.
+    3.  Uses **Gemini AI** to analyze the titles and channels, filtering out irrelevant results.
+    4.  Selects the single **best video resource** and provides a natural language explanation for why it was chosen.
 
-## 🛠️ Technical Stack
+## 2. Curriculum Orchestrator API
+**Purpose:** Generates a structured, step-by-step learning roadmap.
 
-* **Framework**: FastAPI (Python 3.12+)
-* **Core AI**: Gemini 3 Flash Preview (Google Gen AI SDK)
-* **Validation**: Pydantic (JSON Schema Enforcement)
-* **Utilities**: `httpx` (Async Link Validation), `python-dotenv` (Secrets Management)
-
----
-
-## 🏗️ Project Structure
-
-```text
-.
-├── agents/               # Multi-agent logic (Architect, Librarian, etc.)
-│   ├── __init__.py       # Package exports for clean imports
-│   └── architect.py      # Curriculum reasoning logic
-├── schemas/              # Pydantic models for JSON enforcement
-│   ├── __init__.py
-│   └── curriculum.py     # Schema for Gemini 3 structured output
-├── utils/                # Helper functions
-│   └── validator.py      # Async link sanity checks
-├── main.py               # FastAPI Orchestrator (Entry Point)
-└── .env                  # Local API keys (Ignored by Git)
-
-```
-
----
-
-## ⚙️ Setup & Installation
-
-### 1. Environment Variables
-
-This project uses **GitHub Secrets** for production and a local `.env` for development.
-
-**Local Setup:**
-Create a `.env` file in the root directory:
-
-```text
-GEMINI_API_KEY=your_actual_api_key_here
-
-```
-
-**GitHub Secrets:**
-If deploying via GitHub Actions, add `GEMINI_API_KEY` under **Settings > Secrets and variables > Actions**.
-
-### 2. Installation
-
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: .\venv\Scripts\activate
-
-# Install dependencies
-pip install fastapi uvicorn google-genai python-dotenv httpx
-
-```
-
-### 3. Run the Engine
-
-```bash
-uvicorn main:app --reload
-
-```
-
----
-
-## 🔒 Security
-
-* **Secrets**: API keys are managed exclusively via environment variables.
-* **Git**: The `.env` file is listed in `.gitignore` to prevent accidental exposure.
-* **Validation**: The system uses a **Lazy Client** pattern, ensuring the Gemini client only initializes after environment variables are confirmed.
-
----
+* **Endpoint:** `POST /orchestrate`
+* **What it does:**
+    1.  Accepts a broad **Learning Goal** (e.g., "Learn React") and a **Difficulty Level**.
+    2.  Uses an **"Architect Agent"** (powered by Gemini) to design a complete curriculum skeleton.
+    3.  Outputs a structured JSON object containing:
+        * **Modules:** Logical groupings of concepts.
+        * **Tasks:** Action-oriented steps for the user to complete.
+        * **Prerequisites:** Concepts needed before starting.
+        * **Time Estimates:** Estimated hours/minutes for each section.
+--- 
