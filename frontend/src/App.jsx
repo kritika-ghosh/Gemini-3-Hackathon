@@ -3,23 +3,26 @@ import LandingPage from "./pages/LandingPage";
 import RoadmapOrchestrator from "./pages/RoadmapOrchestrator";
 import { AuthGuard } from "@/shared/components/AuthGuard";
 import { AuthProvider } from "@/features/auth/context/AuthContext";
+import { ThemeProvider } from "@/features/theme";
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
 
-          {/* Protected Routes */}
-          <Route element={<AuthGuard />}>
-            <Route path="/orchestrator" element={<RoadmapOrchestrator />} />
-          </Route>
+            {/* Protected Routes */}
+            <Route element={<AuthGuard />}>
+              <Route path="/orchestrator" element={<RoadmapOrchestrator />} />
+            </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

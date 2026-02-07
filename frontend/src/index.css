@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -55,65 +56,65 @@
 
 @layer base {
   :root {
-    --background: #f8f8fa;
-    --foreground: #0f1729;
+    --background: #fafafa;
+    --foreground: #111118;
 
     --card: #ffffff;
-    --card-foreground: #0f1729;
+    --card-foreground: #111118;
 
     --popover: #ffffff;
-    --popover-foreground: #0f1729;
+    --popover-foreground: #111118;
 
-    --primary: #3333dc;
+    --primary: #4949e9;
     --primary-foreground: #ffffff;
 
     --secondary: #f1f5f9;
-    --secondary-foreground: #0f1729;
+    --secondary-foreground: #111118;
 
     --muted: #f1f5f9;
-    --muted-foreground: #64748b;
+    --muted-foreground: #636388;
 
     --accent: #f1f5f9;
-    --accent-foreground: #0f1729;
+    --accent-foreground: #111118;
 
     --destructive: #ef4444;
     --destructive-foreground: #fafafa;
 
-    --border: #e2e8f0;
-    --input: #e2e8f0;
-    --ring: #3333dc;
+    --border: #e5e7eb;
+    --input: #e5e7eb;
+    --ring: #4949e9;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
   }
 
   .dark {
-    --background: #09090a;
-    --foreground: #f8fafc;
+    --background: #111121;
+    --foreground: #ffffff;
 
-    --card: #18181b;
-    --card-foreground: #f8fafc;
+    --card: #1c1c2e;
+    --card-foreground: #ffffff;
 
-    --popover: #18181b;
-    --popover-foreground: #f8fafc;
+    --popover: #1c1c2e;
+    --popover-foreground: #ffffff;
 
-    --primary: #818cf8;
-    --primary-foreground: #0f1729;
+    --primary: #4949e9;
+    --primary-foreground: #ffffff;
 
     --secondary: #1e293b;
-    --secondary-foreground: #f8fafc;
+    --secondary-foreground: #ffffff;
 
     --muted: #1e293b;
     --muted-foreground: #94a3b8;
 
     --accent: #1e293b;
-    --accent-foreground: #f8fafc;
+    --accent-foreground: #ffffff;
 
     --destructive: #7f1d1d;
     --destructive-foreground: #f8fafc;
 
     --border: #27272a;
     --input: #27272a;
-    --ring: #818cf8;
+    --ring: #4949e9;
   }
 }
 
@@ -124,4 +125,27 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  .marching-ants {
+    background: linear-gradient(90deg, var(--primary) 50%, transparent 50%);
+    background-size: 20px 2px;
+    background-repeat: repeat-x;
+    animation: march 1s linear infinite;
+    height: 2px;
+  }
+
+  @keyframes march {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 20px 0;
+    }
+  }
+}
+
+.body,.html{
+   font-family: "Inter", sans-serif;
 }
