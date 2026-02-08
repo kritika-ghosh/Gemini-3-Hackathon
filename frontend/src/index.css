@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -91,33 +91,40 @@
   }
 
   .dark {
-    --background: #111121;
-    --foreground: #ffffff;
+    /* Deeper, more neutral background */
+    --background: #0a0a0b;
+    --foreground: #fafafa;
 
-    --card: #1c1c2e;
-    --card-foreground: #ffffff;
+    /* Cards should be slightly lighter than the background to "lift" */
+    --card: #121214;
+    --card-foreground: #fafafa;
 
-    --popover: #1c1c2e;
-    --popover-foreground: #ffffff;
+    --popover: #121214;
+    --popover-foreground: #fafafa;
 
+    /* Vibrant Indigo that pops against dark Zinc */
     --primary: #818cf8;
     --primary-foreground: #ffffff;
 
-    --secondary: #1e293b;
-    --secondary-foreground: #ffffff;
+    /* Secondary is for subtle buttons/elements */
+    --secondary: #27272a;
+    --secondary-foreground: #fafafa;
 
-    --muted: #1e293b;
-    --muted-foreground: #94a3b8;
+    /* FIX: Muted should be slightly lighter than card but darker than border */
+    --muted: #18181b;
+    --muted-foreground: #a1a1aa;
 
-    --accent: #1e293b;
-    --accent-foreground: #ffffff;
+    /* Accent for hover states */
+    --accent: #27272a;
+    --accent-foreground: #fafafa;
 
-    --destructive: #7f1d1d;
-    --destructive-foreground: #f8fafc;
+    --destructive: #ef4444;
+    --destructive-foreground: #fafafa;
 
+    /* Clean borders */
     --border: #27272a;
     --input: #27272a;
-    --ring: #4949e9;
+    --ring: #6366f1;
   }
 }
 
@@ -149,12 +156,13 @@
   }
 }
 
-.body,.html{
-   font-family: "Inter", sans-serif;
+.body,
+.html {
+  font-family: "Inter", sans-serif;
 }
 
 :root {
-  --sidebar: hsl(0 0% 98%);
+  --sidebar: #fafafa;
   --sidebar-foreground: hsl(240 5.3% 26.1%);
   --sidebar-primary: hsl(240 5.9% 10%);
   --sidebar-primary-foreground: hsl(0 0% 98%);

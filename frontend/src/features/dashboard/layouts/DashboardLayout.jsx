@@ -89,7 +89,7 @@ export default function DashboardLayout({ children }) {
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 pt-0 relative overflow-hidden">
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-10 dark:opacity-5">
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
             <DotGrid
               dotSize={5}
               gap={20}
