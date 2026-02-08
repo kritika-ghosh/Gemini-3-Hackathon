@@ -1,11 +1,10 @@
-import { useAuth } from "@/features/auth/context/AuthContext";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   AuthContainer,
   GoogleAuthButton,
   EmailAuthForm,
+  useAuth,
 } from "@/features/auth";
+import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   Sun,
@@ -34,13 +33,13 @@ import {
   Linkedin,
   Heart,
 } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { useTheme } from "@/features/theme";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "@/shared/components/ThemeContext";
 import FeatureCard from "@/shared/components/FeatureCard";
 import CountUp from "@/shared/components/CountUp";
 import Footer from "@/shared/components/Footer";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import DotGrid from "@/shared/backgrounds/DotGrid";
 
 const StatCard = ({
@@ -240,14 +239,14 @@ const LandingPage = () => {
 
   return (
     <div className="font-display bg-transparent text-foreground transition-colors duration-300 min-h-screen w-full overflow-x-hidden relative">
-      <div className="fixed inset-0 z-[-1] opacity-30 dark:opacity-5 pointer-events-none">
+      <div className="fixed inset-0 z-[-1] opacity-10 dark:opacity-5 pointer-events-none">
         <DotGrid
           dotSize={5}
-          gap={15}
-          baseColor="#a1a1aa"
-          activeColor="#a1a1aa"
-          proximity={120}
-          shockRadius={200}
+          gap={20}
+          baseColor="#95959fff"
+          activeColor={theme === "dark" ? "#A78BFA" : "#7C3AED"}
+          proximity={100}
+          shockRadius={100}
           shockStrength={2}
           resistance={1200}
           returnDuration={2}

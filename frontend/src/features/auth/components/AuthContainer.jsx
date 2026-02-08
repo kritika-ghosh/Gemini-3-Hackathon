@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/shared/components/ui/card";
+} from "@/components/ui/card";
 
 export const AuthContainer = ({ title, description, children }) => {
   return (

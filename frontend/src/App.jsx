@@ -1,9 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import RoadmapOrchestrator from "./pages/RoadmapOrchestrator";
-import { AuthGuard } from "@/shared/components/AuthGuard";
-import { AuthProvider } from "@/features/auth/context/AuthContext";
-import { ThemeProvider } from "@/features/theme";
+import { AuthGuard, AuthProvider } from "@/features/auth";
+import { ThemeProvider } from "@/shared/components/ThemeContext";
 
 function App() {
   return (

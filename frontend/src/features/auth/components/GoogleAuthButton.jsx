@@ -1,20 +1,21 @@
 import React, { useState } from "react";
-import { signInWithRedirect } from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { auth, googleProvider } from "@/config/firebase";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 export const GoogleAuthButton = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
     try {
-      await signInWithRedirect(auth, googleProvider);
-      // Note: Page will redirect, so no need to handle success here.
-      // Auth state will be picked up by AuthContext on return.
+      await signInWithPopup(auth, googleProvider);
+      navigate("/orchestrator");
     } catch (error) {
       console.error("Google Sign-In Error:", error);
       setError(error.message);

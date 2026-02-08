@@ -6,8 +6,8 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth } from "@/config/firebase";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
 export const EmailAuthForm = ({ view, setView }) => {

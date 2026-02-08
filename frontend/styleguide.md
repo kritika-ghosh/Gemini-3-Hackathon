@@ -98,4 +98,30 @@
 1.  **Refusal**: Developers (AI & Human) must deny any request that tries to put business logic inside generic `src/components/` or breaks feature isolation.
 2.  **Refinement**: Before writing code, summarize the plan:
     > "I will create `[Component]` in `[Feature Folder]` and export it via `index.js`."
-3.  **No Business Logic in Shared UI**: `src/shared/components` must be purely presentational.
+
+## 6. Strict Architectural Directive
+
+### The "Source of Truth" Structure
+
+```text
+src/
+├── components/ui/          <-- Atomic shadcn components (untouched)
+├── config/                 <-- External configs (Firebase, API keys)
+├── features/               <-- Business logic silos
+│   ├── auth/               <-- Login, signup, user state
+│   ├── dashboard/          <-- Sidebar tree logic, search
+│   └── roadmap/            <-- Orchestrator API results & video data
+├── hooks/                  <-- Global React hooks
+├── lib/                    <-- Utils and shared helper functions
+├── pages/                  <-- Layout orchestrators (the "routes")
+└── shared/                 <-- Business-agnostic UI
+    ├── components/         <-- GlassCard, Footer, mode-toggle
+    └── layouts/            <-- AppLayout, SidebarWrapper
+```
+
+### AI Guardrail Rules
+
+1.  **Feature Isolation**: If you create a component that depends on specific data (like a Roadmap or User), it MUST go into `src/features/[name]/components/`.
+2.  **Shared logic**: Only put generic, "dumb" UI (cards, backgrounds, toggles) into `src/shared/`.
+3.  **Public API**: You are forbidden from importing deep files. You MUST import from the feature's `index.js` (e.g., `import { useAuth } from '@/features/auth'`).
+4.  **No Deep Nesting**: Do not create more than 3 levels of folders. If a folder has only one file, move that file up one level.
