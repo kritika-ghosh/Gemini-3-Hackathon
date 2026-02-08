@@ -19,3 +19,4 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PATHAI_051606 }}'
           projectId: pathai-051606
           channelId: live
+          entryPoint: "./frontend"
