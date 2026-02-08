@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Command, MoreHorizontal, Plus } from "lucide-react";
+import icon from "@/assets/icon.png";
 
 import {
   Sidebar,
@@ -133,8 +134,12 @@ export function AppSidebar({ ...props }) {
                 href="/orchestrator"
                 className="flex items-center gap-2 min-w-0"
               >
-                <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
+                <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-full bg-white text-sidebar-primary-foreground overflow-hidden border border-white/20 p-1">
+                  <img
+                    src={icon}
+                    alt="PathAI Logo"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 {/* min-w-0 is critical here for the grid child */}
                 <div className="grid flex-1 text-left text-sm leading-tight min-w-0">

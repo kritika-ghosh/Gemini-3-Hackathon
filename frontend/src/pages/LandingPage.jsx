@@ -38,6 +38,7 @@ import { useTheme } from "@/shared/components/ThemeContext";
 import FeatureCard from "@/shared/components/FeatureCard";
 import CountUp from "@/shared/components/CountUp";
 import Footer from "@/shared/components/Footer";
+import icon from "@/assets/icon.png";
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import DotGrid from "@/shared/backgrounds/DotGrid";
@@ -318,9 +319,11 @@ const LandingPage = () => {
       {/* Top Navigation */}
       <header className="flex items-center justify-between px-6 py-6 md:px-20 lg:px-40 relative z-40">
         <div className="flex items-center gap-2">
-          <div className="bg-primary text-primary-foreground p-1.5 rounded-lg flex items-center justify-center">
-            <BookOpen className="w-6 h-6" />
-          </div>
+          <img
+            src={icon}
+            alt="PathAI Logo"
+            className="w-8 h-8 object-contain"
+          />
           <h2 className="text-foreground text-xl font-bold tracking-tight">
             PathAI
           </h2>
