@@ -1,8 +1,7 @@
 import { useState, useCallback } from "react";
 
-const API_1_URL = "https://kritika53245-roadmap-generator.hf.space/orchestrate";
-const API_2_URL =
-  "https://kritika53245-yt-scraper-and-validator-api.hf.space/recommend";
+const API_1_URL = import.meta.env.VITE_ROADMAP_API_URL;
+const API_2_URL = import.meta.env.VITE_VIDEO_API_URL;
 
 import mockRoadmapData from "@/features/dashboard/data/mockRoadmap.json";
 import mockVideoData from "@/features/dashboard/data/mockVideos.json";
