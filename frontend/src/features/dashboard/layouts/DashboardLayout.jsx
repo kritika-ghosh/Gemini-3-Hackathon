@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AppSidebar } from "./AppSidebar";
+import { useRoadmapStore } from "@/features/roadmap/store/roadmapStore";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,9 +25,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Button } from "@/components/ui/button";
 import DotGrid from "@/shared/backgrounds/DotGrid";
+import { useTheme } from "@/shared/components/ThemeContext";
 
 export default function DashboardLayout({ children }) {
   const { user, logout } = useAuth();
+  const { activeRoadmap } = useRoadmapStore();
+  const { theme } = useTheme();
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      if (theme === "dark") return true;
+      if (theme === "light") return false;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    };
+    setIsDark(checkTheme());
+  }, [theme]);
+
+  const dotBaseColor = isDark ? "#E5E7EB" : "#95959fff"; // Optimized for visibility
+  const dotActiveColor = isDark ? "#A78BFA" : "#7C3AED";
 
   return (
     <SidebarProvider>
@@ -39,53 +56,25 @@ export default function DashboardLayout({ children }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Orchestrator</BreadcrumbLink>
+                  <BreadcrumbLink href="/orchestrator">
+                    Orchestrator
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
-                </BreadcrumbItem>
+                {activeRoadmap?.topic && (
+                  <>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                    <BreadcrumbItem>
+                      <BreadcrumbPage className="truncate max-w-[200px]">
+                        {activeRoadmap.topic}
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </>
+                )}
               </BreadcrumbList>
             </Breadcrumb>
           </div>
           <div className="flex items-center gap-4">
             <ModeToggle />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={user?.photoURL}
-                      alt={user?.displayName || "User"}
-                    />
-                    <AvatarFallback>
-                      {user?.displayName?.substring(0, 2) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56" align="end" forceMount>
-                <div className="grid gap-4">
-                  <div className="font-medium leading-none">
-                    {user?.displayName}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {user?.email}
-                  </div>
-                  <Separator />
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={logout}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
           </div>
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 pt-0 relative overflow-hidden">
@@ -93,8 +82,8 @@ export default function DashboardLayout({ children }) {
             <DotGrid
               dotSize={5}
               gap={20}
-              baseColor="#95959fff"
-              activeColor="#7C3AED"
+              baseColor={dotBaseColor}
+              activeColor={dotActiveColor}
               proximity={100}
               shockRadius={100}
               shockStrength={2}

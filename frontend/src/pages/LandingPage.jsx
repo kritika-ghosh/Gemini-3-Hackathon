@@ -221,6 +221,19 @@ const LandingPage = () => {
   const [authView, setAuthView] = useState("login");
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      if (theme === "dark") return true;
+      if (theme === "light") return false;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    };
+    setIsDark(checkTheme());
+  }, [theme]);
+
+  const dotBaseColor = isDark ? "#E5E7EB" : "#95959fff";
+  const dotActiveColor = isDark ? "#A78BFA" : "#7C3AED";
 
   useEffect(() => {
     if (!loading && user) {
@@ -239,12 +252,12 @@ const LandingPage = () => {
 
   return (
     <div className="font-display bg-transparent text-foreground transition-colors duration-300 min-h-screen w-full overflow-x-hidden relative">
-      <div className="fixed inset-0 z-[-1] opacity-10 dark:opacity-5 pointer-events-none">
+      <div className="fixed inset-0 z-[-1] opacity-10 dark:opacity-7 pointer-events-none">
         <DotGrid
           dotSize={5}
           gap={20}
-          baseColor="#95959fff"
-          activeColor={theme === "dark" ? "#A78BFA" : "#7C3AED"}
+          baseColor={dotBaseColor}
+          activeColor={dotActiveColor}
           proximity={100}
           shockRadius={100}
           shockStrength={2}

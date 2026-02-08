@@ -1,21 +1,5 @@
 import * as React from "react";
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  ChevronRight,
-  MoreHorizontal,
-  Folder,
-  Forward,
-  Trash2,
-} from "lucide-react";
+import { Command, MoreHorizontal, Plus } from "lucide-react";
 
 import {
   Sidebar,
@@ -27,17 +11,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
+  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,92 +22,48 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useState, useEffect } from "react";
+import {
+  getUserRoadmaps,
+  deleteRoadmap,
+  renameRoadmap,
+} from "@/features/roadmap";
+import { RoadmapSummaryCard } from "../components/RoadmapSummaryCard";
+import { RoadmapDetailView } from "../components/RoadmapDetailView";
+import { Button } from "@/components/ui/button";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useRoadmapStore } from "@/features/roadmap/store/roadmapStore";
+import { Map, List } from "lucide-react";
 
-// Sample data for navigation
+// Sample navigation data (simplified)
 const data = {
   user: {
     name: "User",
     email: "user@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  navMain: [
-    {
-      title: "Orchestrator",
-      url: "/orchestrator",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "My Roadmaps",
-          url: "#",
-        },
-        {
-          title: "Generate New",
-          url: "#",
-        },
-        {
-          title: "History",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Learning",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "In Progress",
-          url: "#",
-        },
-        {
-          title: "Completed",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Deep Learning",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "React Advanced",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "System Design",
-      url: "#",
-      icon: Map,
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const roadmapIdFromUrl = searchParams.get("roadmapId");
+  const { open } = useSidebar();
+
+  /* Removed local userRoadmaps state */
+  const {
+    activeRoadmapId,
+    activeRoadmap,
+    loadRoadmap,
+    setActiveRoadmapId,
+    userRoadmaps, // Added
+    fetchUserRoadmaps, // Added
+  } = useRoadmapStore();
 
   // Use auth user data if available, fallback to dummy
   const userData = user
@@ -141,17 +74,70 @@ export function AppSidebar({ ...props }) {
       }
     : data.user;
 
+  // Fetch all user roadmaps for the list (using store action)
+  useEffect(() => {
+    if (user) {
+      fetchUserRoadmaps(user.uid);
+    }
+  }, [user, fetchUserRoadmaps]);
+
+  // Sync URL with Store
+  useEffect(() => {
+    if (roadmapIdFromUrl && roadmapIdFromUrl !== activeRoadmapId) {
+      loadRoadmap(roadmapIdFromUrl);
+    }
+  }, [roadmapIdFromUrl, activeRoadmapId, loadRoadmap]);
+
+  const handleRoadmapClick = (id) => {
+    navigate(`/orchestrator?roadmapId=${id}`);
+  };
+
+  const handleDeleteRoadmap = async (id) => {
+    if (window.confirm("Are you sure you want to delete this journey?")) {
+      try {
+        await deleteRoadmap(id);
+        // Refresh list
+        if (user) await fetchUserRoadmaps(user.uid);
+        // If deleted was active, clear selection
+        if (activeRoadmapId === id) {
+          setActiveRoadmapId(null);
+          navigate("/orchestrator");
+        }
+      } catch (error) {
+        console.error("Failed to delete roadmap:", error);
+      }
+    }
+  };
+
+  const handleRenameRoadmap = async (id, newTopic) => {
+    try {
+      await renameRoadmap(id, newTopic);
+      // Refresh list
+      if (user) await fetchUserRoadmaps(user.uid);
+      // If renamed was active, reload it to update UI
+      if (activeRoadmapId === id) {
+        loadRoadmap(id);
+      }
+    } catch (error) {
+      console.error("Failed to rename roadmap:", error);
+    }
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+            <SidebarMenuButton size="lg" asChild className="min-w-0">
+              <a
+                href="/orchestrator"
+                className="flex items-center gap-2 min-w-0"
+              >
+                <div className="flex aspect-square size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                {/* min-w-0 is critical here for the grid child */}
+                <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                   <span className="truncate font-semibold">PathAI</span>
                   <span className="truncate text-xs">Orchestrator</span>
                 </div>
@@ -160,120 +146,116 @@ export function AppSidebar({ ...props }) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
-          <SidebarMenu>
-            {data.navMain.map((item) => (
-              <Collapsible
-                key={item.title}
-                asChild
-                defaultOpen={item.isActive}
-                className="group/collapsible"
+
+      <SidebarContent className="gap-0 overflow-x-hidden">
+        {open ? (
+          <>
+            <SidebarGroup className="p-2 pb-0 min-w-0">
+              <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
+                My Journeys
+              </SidebarGroupLabel>
+              <SidebarMenu className="gap-1 min-w-0">
+                {userRoadmaps.map((roadmap) => (
+                  <RoadmapSummaryCard
+                    key={roadmap.id}
+                    roadmap={roadmap}
+                    isSelected={activeRoadmapId === roadmap.id}
+                    onClick={() => handleRoadmapClick(roadmap.id)}
+                    onDelete={handleDeleteRoadmap}
+                    onRename={handleRenameRoadmap}
+                  />
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+            <div className="p-2 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-2 border border-dashed border-sidebar-border/50 min-w-0 overflow-hidden"
+                onClick={() => {
+                  loadRoadmap(null);
+                  navigate("/orchestrator");
+                }}
               >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </a>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          <SidebarMenu>
-            {data.projects.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <a href={item.url}>
-                    <item.icon />
-                    <span>{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton
-                      className="ml-auto hidden h-6 w-6 p-0 group-hover:flex"
-                      // onClick={(e) => e.stopPropagation()} // Prevent navigation (if button was link)
-                    >
-                      <span className="sr-only">More</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </SidebarMenuButton>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-48 rounded-lg"
-                    side="bottom"
-                    align="end"
-                  >
-                    <DropdownMenuItem>
-                      <Folder className="text-muted-foreground mr-2 h-4 w-4" />
-                      <span>View Project</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Forward className="text-muted-foreground mr-2 h-4 w-4" />
-                      <span>Share Project</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <Trash2 className="text-muted-foreground mr-2 h-4 w-4" />
-                      <span>Delete Project</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            ))}
-            <SidebarMenuItem>
-              <SidebarMenuButton className="text-sidebar-foreground/70">
-                <MoreHorizontal className="text-sidebar-foreground/70" />
-                <span>More</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+                <Plus className="w-3 h-3 shrink-0" />
+                <span className="text-xs truncate">Add New</span>
+              </Button>
+            </div>
+            <SidebarSeparator className="my-2 bg-sidebar-border/50 border-b border-sidebar-border/50 shadow-sm" />
+            {/* This container forces the DetailView to shrink */}
+            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+              <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate shrink-0">
+                Current Roadmap Details
+              </div>
+              <div className="flex-1 min-h-0 w-full overflow-hidden">
+                {activeRoadmap && <RoadmapDetailView roadmap={activeRoadmap} />}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2 p-2 mt-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg"
+              onClick={() => {
+                loadRoadmap(null);
+                navigate("/orchestrator");
+              }}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+            <SidebarSeparator className="w-8 mx-auto bg-sidebar-border/50" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg"
+              title="My Journeys"
+            >
+              <Map className="h-4 w-4" />
+            </Button>
+            {activeRoadmap && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg"
+                title="Current Details"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className="min-w-0 border-t border-sidebar-border/50 shadow-[0_-1px_2px_0_rgba(0,0,0,0.05)]">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="min-w-0 hover:bg-sidebar-accent/50 data-[state=open]:bg-sidebar-accent"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={userData.avatar} alt={userData.name} />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <Avatar className="h-8 w-8 shrink-0 rounded-full border border-sidebar-border">
+                    <AvatarImage src={userData.avatar} />
+                    <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
+                  {/* min-w-0 allows the email to truncate properly */}
+                  <div className="grid flex-1 text-left text-sm leading-tight min-w-0 ml-1">
+                    <span className="truncate font-semibold uppercase">
                       {userData.name}
                     </span>
-                    <span className="truncate text-xs">{userData.email}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {userData.email}
+                    </span>
                   </div>
-                  <MoreHorizontal className="ml-auto size-4" />
+                  <MoreHorizontal className="ml-auto size-4 shrink-0 transition-transform group-data-[state=open]/menu-button:rotate-90" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side="bottom"
+                className="w-56 rounded-lg"
+                side="right"
                 align="end"
                 sideOffset={4}
               >
@@ -292,21 +274,7 @@ export function AppSidebar({ ...props }) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Bot className="mr-2 h-4 w-4" />
-                    Upgrade to Pro
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Settings2 className="mr-2 h-4 w-4" />
-                    Account
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

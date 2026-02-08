@@ -15,11 +15,16 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VideoPlayer } from "./VideoPlayer";
+import { RoadmapTaskItem } from "./RoadmapTaskItem";
+import { useEffect } from "react";
 
 const parseDuration = (durationStr) => {
   if (!durationStr) return 0;
   // Format MM:SS or HH:MM:SS
-  const parts = durationStr.split(":").map(Number);
+  const parts = durationStr.toString().split(":").map(Number);
+
+  if (parts.some(isNaN)) return 0;
+
   if (parts.length === 2) {
     return parts[0] + parts[1] / 60;
   }
@@ -29,9 +34,52 @@ const parseDuration = (durationStr) => {
   return 0;
 };
 
-export const Roadmap = ({ roadmap, videoResources, loadingVideos }) => {
-  // State to track expanded modules. Defaulting to the first module expanded.
-  const [expandedModules, setExpandedModules] = useState([0]);
+export const Roadmap = ({
+  roadmap,
+  videoResources,
+  loadingVideos,
+  onStartLearning,
+  roadmapId,
+}) => {
+  const { isLoaded } = useMemo(() => ({ isLoaded: !!roadmap }), [roadmap]);
+
+  // Handle hash scrolling
+  useEffect(() => {
+    if (isLoaded && window.location.hash) {
+      const id = window.location.hash.substring(1);
+      const element = document.getElementById(id);
+      if (element) {
+        // Small delay to ensure rendering
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Optional: Add highlight effect
+          element.classList.add("ring-2", "ring-primary", "ring-offset-2");
+          setTimeout(
+            () =>
+              element.classList.remove(
+                "ring-2",
+                "ring-primary",
+                "ring-offset-2",
+              ),
+            2000,
+          );
+        }, 500);
+      }
+    }
+  }, [isLoaded, window.location.hash]);
+  // ... existing code ...
+
+  // ... (inside return)
+
+  // State to track expanded modules. Defaulting to ALL modules expanded.
+  const [expandedModules, setExpandedModules] = useState([]);
+
+  // Initialize expanded modules when roadmap loads
+  useEffect(() => {
+    if (roadmap?.modules) {
+      setExpandedModules(roadmap.modules.map((_, i) => i));
+    }
+  }, [roadmap]);
 
   const toggleModule = (index) => {
     setExpandedModules((prev) =>
@@ -49,7 +97,8 @@ export const Roadmap = ({ roadmap, videoResources, loadingVideos }) => {
         if (videoData?.selected_video?.timestamp) {
           totalMinutes += parseDuration(videoData.selected_video.timestamp);
         } else {
-          totalMinutes += task.estimated_minutes || 0;
+          const est = parseInt(task.estimated_minutes || 0, 10);
+          totalMinutes += isNaN(est) ? 0 : est;
         }
       });
     });
@@ -67,7 +116,10 @@ export const Roadmap = ({ roadmap, videoResources, loadingVideos }) => {
           <div className="flex items-start gap-2">
             <BookOpen className="w-4 h-4 text-primary mt-0.5 sm:mt-0" />
             <span className="leading-tight">
-              Goal: <strong className="text-foreground">{roadmap.goal}</strong>
+              Goal:{" "}
+              <strong className="text-foreground">
+                {roadmap.goal || roadmap.topic}
+              </strong>
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -87,7 +139,8 @@ export const Roadmap = ({ roadmap, videoResources, loadingVideos }) => {
         {roadmap.modules.map((module, mIndex) => (
           <Card
             key={mIndex}
-            className="shadow-md dark:shadow-lg dark:shadow-primary/5 overflow-hidden border-border group bg-card transition-all"
+            id={`module-${mIndex}`}
+            className="shadow-md dark:shadow-lg dark:shadow-primary/5 overflow-hidden border-border group bg-card transition-all scroll-mt-20"
           >
             <CardHeader
               className="bg-muted/50 border-b border-border p-5 cursor-pointer hover:bg-muted/70 transition-colors"
@@ -117,78 +170,25 @@ export const Roadmap = ({ roadmap, videoResources, loadingVideos }) => {
               <CardContent className="p-0 divide-y divide-border animate-accordion-down">
                 {module.tasks.map((task, tIndex) => {
                   const taskRes = videoResources[task.title];
+                  // const isLoading = loadingVideos[task.title]; // Unused variable warning if removed, checking usage below.
+                  // Wait, `isLoading` is used in `RoadmapTaskItem`.
+                  // Keeping `isLoading` calculation but removing the commented out hook block.
+
                   const isLoading = loadingVideos[task.title];
                   const displayTime = taskRes?.selected_video?.timestamp
                     ? `${taskRes.selected_video.timestamp}`
                     : `${task.estimated_minutes} min`;
 
                   return (
-                    <div
+                    <RoadmapTaskItem
                       key={tIndex}
-                      className="p-4 md:p-6 hover:bg-muted/30 transition-colors md:ml-11 border-b md:border-b-0 md:border-l-2 border-border last:border-b-0"
-                    >
-                      <div className="flex flex-col md:flex-row items-start justify-between gap-4">
-                        <div className="w-full">
-                          {/* Header Stack: Title and Time */}
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                            <h4 className="font-semibold text-foreground text-base md:text-lg flex items-center gap-2">
-                              <span className="text-primary font-mono text-sm">
-                                {mIndex + 1}.{tIndex + 1}
-                              </span>
-                              {task.title}
-                            </h4>
-                            <span className="w-fit text-[10px] font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full border border-border">
-                              {displayTime}
-                            </span>
-                          </div>
-
-                          {/* Description */}
-                          <p className="text-muted-foreground text-sm leading-relaxed md:ml-7 max-w-2xl">
-                            {task.description}
-                          </p>
-
-                          {/* Loading State for specific task */}
-                          {isLoading && (
-                            <div className="mt-2 md:ml-7 flex items-center gap-2 text-xs text-primary bg-primary/10 px-3 py-1.5 rounded-full animate-pulse w-fit">
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Finding best video...
-                            </div>
-                          )}
-
-                          {/* Expanded Resource Card with Inline Video */}
-                          {taskRes && (
-                            <div className="mt-4 md:ml-7 bg-muted/20 rounded-xl p-3 md:p-5 border border-border/50">
-                              <div className="flex flex-col gap-3">
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                                  <span className="w-fit text-[10px] font-bold text-primary uppercase tracking-widest px-2 py-0.5 bg-primary/10 rounded">
-                                    Must Watch
-                                  </span>
-                                  <h5 className="font-medium text-foreground text-sm line-clamp-1">
-                                    {taskRes.selected_video.title}
-                                  </h5>
-                                </div>
-
-                                <div className="aspect-video w-full overflow-hidden rounded-lg">
-                                  <VideoPlayer
-                                    videoUrl={taskRes.selected_video.url}
-                                    title={taskRes.selected_video.title}
-                                  />
-                                </div>
-
-                                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                                  <img
-                                    src={`https://www.google.com/s2/favicons?domain=youtube.com`}
-                                    className="w-3 h-3 grayscale"
-                                    alt="YouTube Favicon"
-                                  />
-                                  {taskRes.selected_video.channel}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                      task={task}
+                      mIndex={mIndex}
+                      tIndex={tIndex}
+                      videoResources={videoResources}
+                      loadingVideos={loadingVideos}
+                      roadmapId={roadmapId}
+                    />
                   );
                 })}
               </CardContent>
@@ -196,6 +196,19 @@ export const Roadmap = ({ roadmap, videoResources, loadingVideos }) => {
           </Card>
         ))}
       </div>
+
+      {onStartLearning && (
+        <div className="flex justify-center pt-8 pb-8">
+          <Button
+            size="lg"
+            onClick={onStartLearning}
+            className="w-full md:w-auto px-12 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all hover:scale-105 active:scale-95 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300"
+          >
+            Start Learning
+            <PlayCircle className="ml-2 w-5 h-5" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

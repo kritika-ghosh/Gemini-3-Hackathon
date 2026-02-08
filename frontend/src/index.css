@@ -193,3 +193,22 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
+
+/* src/index.css */
+
+/* src/index.css */
+
+/* Force all sidebar containers to respect the width of the parent */
+[data-sidebar="content"],
+[data-sidebar="group-content"],
+[data-sidebar="menu-item"],
+[data-sidebar="menu-button"] {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Ensure the scroll area content doesn't stretch */
+[data-radix-scroll-area-viewport] > div {
+  display: block !important;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Loader2, Sparkles, ChevronDown, FlaskConical } from "lucide-react";
 import {
   Card,
@@ -16,11 +16,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export const Generate = ({ onGenerate, onGenerateMock, loading }) => {
-  const [topic, setTopic] = useState("");
-  const [goal, setGoal] = useState("");
-  const [difficulty, setDifficulty] = useState("Beginner");
-
+export const Generate = ({
+  topic,
+  setTopic,
+  goal,
+  setGoal,
+  difficulty,
+  setDifficulty,
+  onGenerate,
+  onGenerateMock,
+  loading,
+}) => {
   const handleGenerateClick = () => {
     onGenerate(topic, goal, difficulty);
   };

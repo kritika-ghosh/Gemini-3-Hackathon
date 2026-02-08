@@ -105,13 +105,10 @@ export const useRoadmapGenerator = () => {
       setRoadmap(roadmapData);
 
       if (roadmapData?.modules) {
-        for (const module of roadmapData.modules) {
-          if (module.tasks) {
-            for (const task of module.tasks) {
-              fetchVideoForTask(task.title, combinedGoal, difficulty);
-            }
-          }
-        }
+        const allTasks = roadmapData.modules.flatMap((m) => m.tasks || []);
+        allTasks.forEach((task) => {
+          fetchVideoForTask(task.title, combinedGoal, difficulty);
+        });
       }
     } catch (err) {
       console.error("Error in generateRoadmap:", err);
@@ -119,6 +116,14 @@ export const useRoadmapGenerator = () => {
     } finally {
       setLoadingRoadmap(false);
     }
+  };
+
+  const resetRoadmap = () => {
+    setRoadmap(null);
+    setVideoResources({});
+    setLoadingVideos({});
+    setError(null);
+    setLoadingRoadmap(false);
   };
 
   return {
@@ -129,5 +134,6 @@ export const useRoadmapGenerator = () => {
     loadingVideos,
     generateRoadmap,
     generateMockRoadmap,
+    resetRoadmap,
   };
 };
