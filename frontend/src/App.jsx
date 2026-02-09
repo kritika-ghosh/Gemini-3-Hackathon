@@ -12,9 +12,11 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
 
-            {/* Protected Routes */}
+            <Route path="/orchestrator" element={<RoadmapOrchestrator />} />
+
+            {/* Protected Routes (Placeholders) */}
             <Route element={<AuthGuard />}>
-              <Route path="/orchestrator" element={<RoadmapOrchestrator />} />
+              {/* <Route path="/profile" element={<Profile />} /> */}
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

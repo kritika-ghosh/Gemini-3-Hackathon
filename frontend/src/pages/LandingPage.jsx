@@ -147,7 +147,7 @@ const LandingPage = () => {
     {
       title: "No more tutorial hell.",
       subtext:
-        "AI-validated YouTube resources for every task. Gemini 1.5 Flash filters the fluff to pick the best teacher for you.",
+        "AI-validated YouTube resources for every task. Gemini 3 Flash filters the fluff to pick the best teacher for you.",
       visual: (
         <div className="relative w-full h-full flex flex-col gap-4 p-4 overflow-hidden">
           {/* Mock Gemini Validation UI */}
@@ -448,9 +448,12 @@ const LandingPage = () => {
             >
               Start Learning for Free
             </button>
-            <button className="flex items-center gap-2 px-6 py-4 rounded-full bg-transparent text-foreground font-bold text-lg hover:bg-foreground/5 transition-all">
-              <span>See How It Works</span>
-              <ChevronDown className="w-5 h-5" />
+            <button
+              onClick={() => navigate("/orchestrator")}
+              className="flex items-center gap-2 px-6 py-4 rounded-full bg-foreground/5 text-foreground font-bold text-lg hover:bg-foreground/10 border border-border transition-all"
+            >
+              <span>Try Without Account</span>
+              <ChevronDown className="w-5 h-5 -rotate-90" />
             </button>
           </div>
 

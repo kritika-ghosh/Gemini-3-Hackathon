@@ -3,9 +3,6 @@ import { useState, useCallback } from "react";
 const API_1_URL = import.meta.env.VITE_ROADMAP_API_URL;
 const API_2_URL = import.meta.env.VITE_VIDEO_API_URL;
 
-import mockRoadmapData from "@/features/dashboard/data/mockRoadmap.json";
-import mockVideoData from "@/features/dashboard/data/mockVideos.json";
-
 export const useRoadmapGenerator = () => {
   const [roadmap, setRoadmap] = useState(null);
   const [loadingRoadmap, setLoadingRoadmap] = useState(false);
@@ -36,41 +33,6 @@ export const useRoadmapGenerator = () => {
       setLoadingVideos((prev) => ({ ...prev, [taskTitle]: false }));
     }
   }, []);
-
-  const generateMockRoadmap = () => {
-    setLoadingRoadmap(true);
-    setError(null);
-    setRoadmap(null);
-    setVideoResources({});
-    setLoadingVideos({});
-
-    // Simulate network delay for roadmap
-    setTimeout(() => {
-        setRoadmap(mockRoadmapData);
-        setLoadingRoadmap(false);
-
-        // Simulate video fetching for each task
-        if (mockRoadmapData.modules) {
-          mockRoadmapData.modules.forEach(module => {
-            module.tasks.forEach(task => {
-                const title = task.title;
-                setLoadingVideos(prev => ({ ...prev, [title]: true }));
-                
-                // Random delay between 1s and 3s for each video to simulate "work"
-                const delay = Math.random() * 2000 + 1000;
-                
-                setTimeout(() => {
-                    const videoData = mockVideoData[title];
-                    if (videoData) {
-                        setVideoResources(prev => ({ ...prev, [title]: videoData }));
-                    }
-                    setLoadingVideos(prev => ({ ...prev, [title]: false }));
-                }, delay);
-            });
-          });
-        }
-    }, 1000);
-  };
 
   const generateRoadmap = async (topic, goal, difficulty) => {
     if (!topic.trim() || !goal.trim()) return;
@@ -132,7 +94,6 @@ export const useRoadmapGenerator = () => {
     videoResources,
     loadingVideos,
     generateRoadmap,
-    generateMockRoadmap,
     resetRoadmap,
   };
 };

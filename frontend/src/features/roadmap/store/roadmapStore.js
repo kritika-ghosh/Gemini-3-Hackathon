@@ -19,7 +19,13 @@ export const useRoadmapStore = create((set, get) => ({
 
     set({ isLoading: true, error: null, activeRoadmapId: id });
     try {
-      const roadmap = await getRoadmapById(id);
+      let roadmap;
+      if (id.startsWith('local_')) {
+          const { getLocalRoadmapById } = await import('@/features/roadmap/services/localRoadmapService');
+          roadmap = getLocalRoadmapById(id);
+      } else {
+          roadmap = await getRoadmapById(id);
+      }
       set({ activeRoadmap: roadmap, isLoading: false });
     } catch (error) {
       console.error("Failed to load roadmap:", error);
@@ -29,19 +35,29 @@ export const useRoadmapStore = create((set, get) => ({
   
   // Set active roadmap directly (e.g. after generation)
   setActiveRoadmap: (roadmap) => {
-      set({ activeRoadmap: roadmap, activeRoadmapId: roadmap.id || null });
+      set({ activeRoadmap: roadmap, activeRoadmapId: roadmap?.id || null });
   },
 
-  // Fetch all roadmaps for a user
+  // Fetch all roadmaps for a user (and local ones)
   fetchUserRoadmaps: async (userId) => {
-    if (!userId) return;
     try {
-        // dynamic import to avoid circular dependency if service imports store
-        const { getUserRoadmaps } = await import('@/features/roadmap/services/roadmapService'); 
-        const roadmaps = await getUserRoadmaps(userId);
-        set({ userRoadmaps: roadmaps });
+        let allRoadmaps = [];
+        
+        // 1. Always fetch local roadmaps
+        const { getLocalRoadmaps } = await import('@/features/roadmap/services/localRoadmapService');
+        const localRoadmaps = getLocalRoadmaps();
+        allRoadmaps = [...localRoadmaps];
+
+        // 2. Fetch remote roadmaps if userId exists
+        if (userId) {
+            const { getUserRoadmaps } = await import('@/features/roadmap/services/roadmapService'); 
+            const remoteRoadmaps = await getUserRoadmaps(userId);
+            allRoadmaps = [...allRoadmaps, ...remoteRoadmaps];
+        }
+
+        set({ userRoadmaps: allRoadmaps });
     } catch (error) {
-        console.error("Failed to fetch user roadmaps:", error);
+        console.error("Failed to fetch roadmaps:", error);
     }
   }
 }));

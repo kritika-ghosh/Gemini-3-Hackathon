@@ -24,7 +24,6 @@ export const Generate = ({
   difficulty,
   setDifficulty,
   onGenerate,
-  onGenerateMock,
   loading,
 }) => {
   const handleGenerateClick = () => {
@@ -109,15 +108,6 @@ export const Generate = ({
         </div>
 
         <div className="flex gap-2 w-full md:w-auto">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onGenerateMock}
-            title="Use Mock Data"
-            className="text-muted-foreground hover:text-primary hover:bg-accent"
-          >
-            <FlaskConical className="h-5 w-5" />
-          </Button>
           <Button
             onClick={handleGenerateClick}
             disabled={loading || !topic.trim() || !goal.trim()}

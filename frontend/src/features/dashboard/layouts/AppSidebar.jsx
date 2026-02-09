@@ -40,15 +40,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRoadmapStore } from "@/features/roadmap/store/roadmapStore";
 import { Map, List } from "lucide-react";
 
-// Sample navigation data (simplified)
-const data = {
-  user: {
-    name: "User",
-    email: "user@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-};
-
 export function AppSidebar({ ...props }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -56,30 +47,25 @@ export function AppSidebar({ ...props }) {
   const roadmapIdFromUrl = searchParams.get("roadmapId");
   const { open } = useSidebar();
 
-  /* Removed local userRoadmaps state */
   const {
     activeRoadmapId,
     activeRoadmap,
     loadRoadmap,
     setActiveRoadmapId,
-    userRoadmaps, // Added
-    fetchUserRoadmaps, // Added
+    userRoadmaps,
+    fetchUserRoadmaps,
   } = useRoadmapStore();
 
-  // Use auth user data if available, fallback to dummy
-  const userData = user
-    ? {
-        name: user.displayName || "User",
-        email: user.email || "user@example.com",
-        avatar: user.photoURL || "",
-      }
-    : data.user;
+  // Use auth user data if available, or defaults
+  const userData = {
+    name: user?.displayName || "User",
+    email: user?.email || "",
+    avatar: user?.photoURL || "",
+  };
 
   // Fetch all user roadmaps for the list (using store action)
   useEffect(() => {
-    if (user) {
-      fetchUserRoadmaps(user.uid);
-    }
+    fetchUserRoadmaps(user?.uid);
   }, [user, fetchUserRoadmaps]);
 
   // Sync URL with Store
@@ -96,9 +82,17 @@ export function AppSidebar({ ...props }) {
   const handleDeleteRoadmap = async (id) => {
     if (window.confirm("Are you sure you want to delete this journey?")) {
       try {
-        await deleteRoadmap(id);
+        if (id.startsWith("local_")) {
+          const { deleteLocalRoadmap } =
+            await import("@/features/roadmap/services/localRoadmapService");
+          deleteLocalRoadmap(id);
+        } else {
+          await deleteRoadmap(id);
+        }
+
         // Refresh list
-        if (user) await fetchUserRoadmaps(user.uid);
+        fetchUserRoadmaps(user?.uid);
+
         // If deleted was active, clear selection
         if (activeRoadmapId === id) {
           setActiveRoadmapId(null);
@@ -112,9 +106,17 @@ export function AppSidebar({ ...props }) {
 
   const handleRenameRoadmap = async (id, newTopic) => {
     try {
-      await renameRoadmap(id, newTopic);
+      if (id.startsWith("local_")) {
+        const { renameLocalRoadmap } =
+          await import("@/features/roadmap/services/localRoadmapService");
+        renameLocalRoadmap(id, newTopic);
+      } else {
+        await renameRoadmap(id, newTopic);
+      }
+
       // Refresh list
-      if (user) await fetchUserRoadmaps(user.uid);
+      fetchUserRoadmaps(user?.uid);
+
       // If renamed was active, reload it to update UI
       if (activeRoadmapId === id) {
         loadRoadmap(id);
@@ -122,6 +124,12 @@ export function AppSidebar({ ...props }) {
     } catch (error) {
       console.error("Failed to rename roadmap:", error);
     }
+  };
+  const handleLogout = async () => {
+    if (user) {
+      await logout();
+    }
+    navigate("/");
   };
 
   return (
@@ -279,7 +287,9 @@ export function AppSidebar({ ...props }) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>Log out</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Log out
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

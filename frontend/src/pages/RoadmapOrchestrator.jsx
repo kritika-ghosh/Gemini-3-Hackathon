@@ -5,7 +5,6 @@ import DashboardLayout from "@/features/dashboard/layouts/DashboardLayout";
 import { Generate } from "@/features/dashboard/components/Generate";
 import { Roadmap } from "@/features/dashboard/components/Roadmap";
 import { useRoadmapGenerator } from "@/features/dashboard/hooks/useRoadmapGenerator";
-import { saveRoadmap } from "@/features/roadmap";
 import { useAuth } from "@/features/auth/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -29,7 +28,6 @@ const RoadmapOrchestrator = () => {
     videoResources: generatedVideoResources,
     loadingVideos,
     generateRoadmap,
-    generateMockRoadmap,
     resetRoadmap,
   } = useRoadmapGenerator();
 
@@ -47,7 +45,6 @@ const RoadmapOrchestrator = () => {
       loadRoadmap(roadmapId);
       resetRoadmap(); // Clear any generated state when switching to saved
     } else if (!roadmapId) {
-      
       if (activeRoadmap) {
         loadRoadmap(null);
       }
@@ -61,12 +58,10 @@ const RoadmapOrchestrator = () => {
     : generatedVideoResources;
 
   const handleStartLearning = async () => {
-    if (!generatedRoadmap || !user) return;
+    if (!generatedRoadmap) return;
 
     setIsSaving(true);
     try {
-      // Use the Goal as the title as per user request, or Topic if Goal is missing.
-      // Fallback to "Custom Roadmap"
       const roadmapTitle =
         goal ||
         topic ||
@@ -75,7 +70,6 @@ const RoadmapOrchestrator = () => {
         "Custom Roadmap";
 
       const roadmapData = {
-        userId: user.uid,
         topic: roadmapTitle,
         goal: goal || generatedRoadmap.goal,
         difficulty: difficulty || generatedRoadmap.difficulty || "Beginner",
@@ -85,19 +79,29 @@ const RoadmapOrchestrator = () => {
         },
       };
 
-      const savedId = await saveRoadmap(roadmapData);
+      let savedId;
+
+      if (user) {
+        // Save to Firebase
+        const { saveRoadmap: firebaseSave } =
+          await import("@/features/roadmap");
+        savedId = await firebaseSave({ ...roadmapData, userId: user.uid });
+        fetchUserRoadmaps(user.uid); // Update the sidebar list immediately
+      } else {
+        // Save to LocalStorage
+        const { saveLocalRoadmap } =
+          await import("@/features/roadmap/services/localRoadmapService");
+        savedId = saveLocalRoadmap(roadmapData);
+        fetchUserRoadmaps(null); // Update the sidebar list immediately
+      }
 
       // Update store and URL
       loadRoadmap(savedId); // Reload to ensure store has full saved object
-      if (user) {
-        fetchUserRoadmaps(user.uid); // Update the sidebar list immediately
-      }
       navigate(`/orchestrator?roadmapId=${savedId}`);
     } catch (err) {
       console.error("Failed to save roadmap:", err);
     } finally {
       setIsSaving(false);
-      // Clear the generated roadmap so "Add New" works correctly (shows generator next time)
       resetRoadmap();
     }
   };
@@ -136,7 +140,6 @@ const RoadmapOrchestrator = () => {
                 difficulty={difficulty}
                 setDifficulty={setDifficulty}
                 onGenerate={generateRoadmap}
-                onGenerateMock={generateMockRoadmap}
                 loading={loadingRoadmap}
               />
             </>
