@@ -34,7 +34,7 @@ export const useRoadmapGenerator = () => {
     }
   }, []);
 
-  const generateRoadmap = async (topic, goal, difficulty) => {
+  const generateRoadmap = useCallback(async (topic, goal, difficulty) => {
     if (!topic.trim() || !goal.trim()) return;
     setLoadingRoadmap(true);
     setError(null);
@@ -77,15 +77,15 @@ export const useRoadmapGenerator = () => {
     } finally {
       setLoadingRoadmap(false);
     }
-  };
+  }, [fetchVideoForTask]);
 
-  const resetRoadmap = () => {
+  const resetRoadmap = useCallback(() => {
     setRoadmap(null);
     setVideoResources({});
     setLoadingVideos({});
     setError(null);
     setLoadingRoadmap(false);
-  };
+  }, []);
 
   return {
     roadmap,

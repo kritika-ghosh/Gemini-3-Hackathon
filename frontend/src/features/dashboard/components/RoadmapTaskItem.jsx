@@ -113,12 +113,10 @@ export const RoadmapTaskItem = ({
                   </h5>
                 </div>
 
-                <div className="aspect-video w-full overflow-hidden rounded-lg">
-                  <VideoPlayer
-                    videoUrl={taskRes.selected_video.url}
-                    title={taskRes.selected_video.title}
-                  />
-                </div>
+                <VideoPlayer
+                  videoUrl={taskRes.selected_video.url}
+                  title={taskRes.selected_video.title}
+                />
 
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <img

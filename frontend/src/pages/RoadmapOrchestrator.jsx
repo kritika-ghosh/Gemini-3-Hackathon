@@ -48,8 +48,9 @@ const RoadmapOrchestrator = () => {
       if (activeRoadmap) {
         loadRoadmap(null);
       }
+      resetRoadmap(); // Also reset generation state when starting fresh
     }
-  }, [roadmapId, activeRoadmap, loadRoadmap]);
+  }, [roadmapId, activeRoadmap, loadRoadmap, resetRoadmap]);
 
   const displayRoadmap = roadmapId ? activeRoadmap : generatedRoadmap;
 
